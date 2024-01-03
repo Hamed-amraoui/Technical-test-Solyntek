@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { Avatar, Badge } from "antd";
-import Sidebar from "../SideBar";
+import Sidebar from "../Layout/SideBar";
 
 const Users = () => {
     const [users, setUsers] = useState([]);
@@ -22,13 +20,9 @@ const Users = () => {
 
     const handleDelete = async (userId) => {
         if (window.confirm('Are you sure you want to delete?')) {
-            const token = window.localStorage.getItem('authToken');
+            
             try {
-                await axios.delete(`${process.env.REACT_APP_SERVER_URL}/users/${userId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                await axios.delete(`${process.env.REACT_APP_SERVER_URL}/users/${userId}`);
                 toast.success('User deleted');
                 loadUsers();
             } catch (error) {
