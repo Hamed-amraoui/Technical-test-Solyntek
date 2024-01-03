@@ -56,8 +56,8 @@ export const Login = async (req, res) => {
             );
 
         user.password = undefined;
-        res.cookie('authToken', token);
-        res.json(user);
+        res.json({token: token});
+        //res.json(user);
          
     } catch (error) {
          return res.status(400).send("Error. Try again.");

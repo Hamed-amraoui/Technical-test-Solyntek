@@ -18,13 +18,12 @@ const Login = () => {
             const res = await axios.post(`${process.env.REACT_APP_SERVER_URL}/login`, {
                 email,
                 password,
-            },
-            {
-                withCredentials: true,
-            });
-            console.log(res);
+            }
+            );
+
             dispatch(setUser(res.data));
-            window.localStorage.setItem("User", JSON.stringify(res));
+            window.localStorage.setItem("token", res.data.token);
+            console.log(res.data.token);
             toast.success('Login success');
             navigate('/dashboard');
         } catch (error) {

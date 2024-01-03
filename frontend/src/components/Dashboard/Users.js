@@ -8,9 +8,14 @@ import Sidebar from "../Layout/SideBar";
 const Users = () => {
     const [users, setUsers] = useState([]);
 
+    const token = window.localStorage.getItem('token');
 
     const loadUsers = async () => {
-        const res = await axios.get(`${process.env.REACT_APP_SERVER_URL}/users`);
+        const res = await axios.get(`${process.env.REACT_APP_SERVER_URL}/users`, {
+            headers: {
+                token: token,
+            },
+        });
         setUsers(res.data);
     };
 

@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const requireSignin = expressjwt({
-  getToken: (req) => req.cookies.authToken,
+    getToken: (req) => req.headers.token,
     secret: process.env.JWT_SECRET,
     algorithms: ["HS256"],
 });
