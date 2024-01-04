@@ -6,7 +6,7 @@ import { manageUsers, deleteUser } from "../controllers/user.controller.js";
 const router = express.Router();
 
 router.get('/users',requireSignin , manageUsers);
-router.delete('/users/:userId', deleteUser);
+router.delete('/users/:userId', requireSignin, deleteUser);
 
 
 
