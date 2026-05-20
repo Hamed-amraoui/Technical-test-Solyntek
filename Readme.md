@@ -48,3 +48,19 @@ Un tableau de bord pour afficher les informations et les utilisateurs.
 2. Exécution du Front-end
    ```bash
       npm run start
+## Deploiement AWS (Terraform + Ansible + GitHub Actions)
+Le workflow CI/CD est dans `.github/workflows/deploy-aws.yml`.
+
+### Secrets GitHub requis
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `TF_STATE_BUCKET` (bucket S3 pour le state Terraform)
+- `AWS_EC2_KEY_NAME` (nom d'une key pair EC2 existante)
+- `AWS_SSH_PRIVATE_KEY` (cle privee associee a la key pair)
+- `JWT_SECRET`
+- `SSH_INGRESS_CIDR` (optionnel, fallback `0.0.0.0/0`)
+
+### Pipeline
+1. Terraform provisionne l'instance EC2 et le security group.
+2. Ansible installe Docker et Docker Compose sur l'instance.
+3. Ansible deploie `frontend`, `backend`, `mongodb` via `docker-compose`.
