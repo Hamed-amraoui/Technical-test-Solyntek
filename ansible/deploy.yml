@@ -113,8 +113,6 @@
       ansible.builtin.shell: |
         set -e
         cd "{{ app_dir }}"
-        export DOCKER_BUILDKIT=1
-        export COMPOSE_DOCKER_CLI_BUILD=1
         docker-compose down --remove-orphans || true
         docker-compose up -d --build
       args:
