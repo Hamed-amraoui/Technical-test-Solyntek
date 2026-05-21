@@ -103,10 +103,18 @@
         line: "/swapfile none swap sw 0 0"
         state: present
 
+    - name: Prune unused Docker data to free disk space
+      ansible.builtin.shell: |
+        docker system prune -af || true
+      args:
+        executable: /bin/bash
+
     - name: Build and run containers
       ansible.builtin.shell: |
         set -e
         cd "{{ app_dir }}"
+        export DOCKER_BUILDKIT=1
+        export COMPOSE_DOCKER_CLI_BUILD=1
         docker-compose down --remove-orphans || true
         docker-compose up -d --build
       args:
