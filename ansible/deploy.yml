@@ -137,3 +137,19 @@
         docker-compose up -d --build
       args:
         executable: /bin/bash
+      async: 3600
+      poll: 0
+      register: build_job
+
+    - name: Wait for SSH to become available
+      ansible.builtin.wait_for_connection:
+        delay: 5
+        timeout: 600
+
+    - name: Wait for containers build to finish
+      ansible.builtin.async_status:
+        jid: "{{ build_job.ansible_job_id }}"
+      register: build_result
+      until: build_result.finished
+      retries: 120
+      delay: 10
