@@ -58,7 +58,7 @@ const Login = () => {
                         required
                         />
                         <br />
-                        <div class="d-grid gap-2">
+                        <div className="d-grid gap-2">
                             <button type="submit" className="btn btn-primary btn-raised p-3 rounded-5">
                                 Login
                             </button>
