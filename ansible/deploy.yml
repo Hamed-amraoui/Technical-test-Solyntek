@@ -6,6 +6,9 @@
     app_group: ubuntu
     local_project_dir: "{{ playbook_dir }}/.."
     database_url: "mongodb://mongodb:27017/solyntek_db"
+    swapfile_path: /swapfile
+    swap_size_mb: 4096
+    swap_size_bytes: "{{ swap_size_mb * 1024 * 1024 }}"
 
   tasks:
     - name: Ensure required apt packages are installed
@@ -74,33 +77,48 @@
 
     - name: Check if swapfile exists
       ansible.builtin.stat:
-        path: /swapfile
+        path: "{{ swapfile_path }}"
       register: swapfile_stat
 
-    - name: Create 2G swapfile when missing
-      ansible.builtin.command: fallocate -l 2G /swapfile
-      when: not swapfile_stat.stat.exists
+    - name: Determine whether swapfile needs rebuild
+      ansible.builtin.set_fact:
+        swap_needs_rebuild: "{{ (not swapfile_stat.stat.exists) or (swapfile_stat.stat.size | default(0) | int != swap_size_bytes | int) }}"
+
+    - name: Disable swapfile when resizing
+      ansible.builtin.command: "swapoff {{ swapfile_path }}"
+      when: swapfile_stat.stat.exists and (swapfile_stat.stat.size | default(0) | int != swap_size_bytes | int)
+      failed_when: false
+
+    - name: Remove swapfile when resizing
+      ansible.builtin.file:
+        path: "{{ swapfile_path }}"
+        state: absent
+      when: swapfile_stat.stat.exists and (swapfile_stat.stat.size | default(0) | int != swap_size_bytes | int)
+
+    - name: Create swapfile when missing or resized
+      ansible.builtin.command: "fallocate -l {{ swap_size_mb }}M {{ swapfile_path }}"
+      when: swap_needs_rebuild
 
     - name: Set swapfile permissions
       ansible.builtin.file:
-        path: /swapfile
+        path: "{{ swapfile_path }}"
         owner: root
         group: root
         mode: "0600"
-      when: not swapfile_stat.stat.exists
+      when: swap_needs_rebuild
 
     - name: Format swapfile
-      ansible.builtin.command: mkswap /swapfile
-      when: not swapfile_stat.stat.exists
+      ansible.builtin.command: "mkswap {{ swapfile_path }}"
+      when: swap_needs_rebuild
 
     - name: Enable swapfile
-      ansible.builtin.command: swapon /swapfile
-      when: not swapfile_stat.stat.exists
+      ansible.builtin.command: "swapon {{ swapfile_path }}"
+      when: swap_needs_rebuild
 
     - name: Persist swapfile in fstab
       ansible.builtin.lineinfile:
         path: /etc/fstab
-        line: "/swapfile none swap sw 0 0"
+        line: "{{ swapfile_path }} none swap sw 0 0"
         state: present
 
     - name: Prune unused Docker data to free disk space
