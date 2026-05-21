@@ -3,6 +3,7 @@ import LoginPage from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import Home from './components/Dashboard/Dashboard';
 import UsersPage from './pages/Dashboard/Users';
+import Welcome from './pages/Home/Welcome';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 
@@ -12,6 +13,7 @@ function App() {
     <Provider store={store}>
       <Router>
         <Routes>
+          <Route path="/" element={<Welcome />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Home />} />
